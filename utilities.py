@@ -99,7 +99,7 @@ class Utilities:
         b_qr_code = self.generate_qr_code(qr_uri)
 
         qr_code = base64.b64encode(b_qr_code)
-        return str(qr_code)
+        return qr_code.decode('utf-8')
 
     
     def is_base_32(self, text: str):
