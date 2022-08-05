@@ -224,3 +224,247 @@ class Test:
             assert self.utils.is_base_64(qr_code)
         except Exception as e:
             assert False, str(e)
+
+
+    def test_invalid_generate_otp(self):
+        # secret key is None
+        try:
+            self.utils.generate_otp(
+                secret_key=None,
+                o_type="totp",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # secret key is empty
+        try:
+            self.utils.generate_otp(
+                secret_key="",
+                o_type="totp",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # o_type is None
+        try:
+            self.utils.generate_otp(
+                secret_key=self.utils.generate_secret_key(),
+                o_type=None,
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # o_type is empty
+        try:
+            self.utils.generate_otp(
+                secret_key=self.utils.generate_secret_key(),
+                o_type="",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # o_type is totp but counter has a value
+        try:
+            self.utils.generate_otp(
+                secret_key=self.utils.generate_secret_key(),
+                o_type="totp",
+                counter=0,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # o_type is hotp but counter is None
+        try:
+            self.utils.generate_otp(
+                secret_key=self.utils.generate_secret_key(),
+                o_type="hotp",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+
+    def test_correct_generate_otp(self):
+        try:
+            # default totp
+            otp = self.utils.generate_otp(
+                secret_key=self.utils.generate_secret_key(),
+            )
+            assert otp is not None
+            assert type(otp) == str
+
+            # totp
+            otp = self.utils.generate_otp(
+                secret_key=self.utils.generate_secret_key(),
+                o_type="totp",
+            )
+            assert otp is not None
+            assert type(otp) == str
+
+            # hotp
+            otp = self.utils.generate_otp(
+                secret_key=self.utils.generate_secret_key(),
+                o_type="hotp",
+                counter=0,
+            )
+            assert otp is not None
+            assert type(otp) == str
+        except Exception as e:
+            assert False, str(e)
+
+
+    def test_invalid_verify_otp(self):
+        # secret key is None
+        try:
+            self.utils.verify_otp(
+                secret_key=None,
+                otp="123456",
+                o_type="totp",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # secret key is empty
+        try:
+            self.utils.verify_otp(
+                secret_key="",
+                otp="123456",
+                o_type="totp",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+        # secret key is None
+        try:
+            self.utils.verify_otp(
+                secret_key=None,
+                otp="",
+                o_type="totp",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # otp is empty
+        try:
+            self.utils.verify_otp(
+                secret_key=self.utils.generate_secret_key(),
+                otp="",
+                o_type="totp",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # o_type is None
+        try:
+            self.utils.verify_otp(
+                secret_key=self.utils.generate_secret_key(),
+                otp="123456",
+                o_type=None,
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # o_type is empty
+        try:
+            self.utils.verify_otp(
+                secret_key=self.utils.generate_secret_key(),
+                otp="123456",
+                o_type="",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # o_type is totp but counter has a value
+        try:
+            self.utils.verify_otp(
+                secret_key=self.utils.generate_secret_key(),
+                otp="123456",
+                o_type="totp",
+                counter=0,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+        # o_type is hotp but counter is None
+        try:
+            self.utils.verify_otp(
+                secret_key=self.utils.generate_secret_key(),
+                otp="123456",
+                o_type="hotp",
+                counter=None,
+            )
+        except ValueError:
+            pass
+        except Exception as e:
+            assert False, str(e)
+
+
+    def test_correct_verify_otp(self):
+        try:
+            secret_key = self.utils.generate_secret_key()
+            totp = self.utils.generate_otp(
+                secret_key=secret_key,
+                o_type="totp",
+            )
+
+            counter = 0
+            hotp = self.utils.generate_otp(
+                secret_key=secret_key,
+                o_type="hotp",
+                counter=0
+            )
+
+            # verify totp
+            verified = self.utils.verify_otp(
+                secret_key=secret_key,
+                otp=totp,
+            )
+            assert verified is not None
+            assert type(verified) == bool
+
+            # verify hotp
+            verified = self.utils.verify_otp(
+                secret_key=secret_key,
+                otp=hotp,
+                o_type="hotp",
+                counter=counter,
+            )
+            assert verified is not None
+            assert type(verified) == bool
+        except Exception as e:
+            assert False, str(e)
